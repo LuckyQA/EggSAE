@@ -8,115 +8,61 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #f7f7f8;
-            --surface: #ffffff;
-            --text: #18181b;
-            --muted: #8a8a93;
-            --border: #e8e8ec;
-            --primary: #7c3aed;
-            --primary-soft: #f3eefd;
-            --gold: #b45309;
-            --green: #15803d;
+            --bg: #f7f7f8; --surface: #ffffff; --text: #18181b; --muted: #8a8a93;
+            --border: #e8e8ec; --primary: #7c3aed; --primary-soft: #f3eefd;
+            --gold: #b45309; --green: #15803d;
             --ease: cubic-bezier(0.22, 1, 0.36, 1);
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
             font-family: 'Inter', -apple-system, 'Segoe UI', Tahoma, sans-serif;
-            background:
-                radial-gradient(900px 500px at 50% -10%, #ede9fe 0%, transparent 60%),
-                var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 2rem 1.25rem 3rem;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            background: radial-gradient(900px 500px at 50% -10%, #ede9fe 0%, transparent 60%), var(--bg);
+            color: var(--text); margin: 0; padding: 2rem 1.25rem 3rem;
+            min-height: 100vh; display: flex; flex-direction: column; align-items: center;
         }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-thumb { background: #d9d9e0; border-radius: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
 
-        /* ===== Animations (เล่นเฉพาะตอนโผล่ครั้งแรก) ===== */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes modalIn {
-            from { opacity: 0; transform: translateY(14px) scale(.98); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,.4); }
-            50% { box-shadow: 0 0 0 5px rgba(34,197,94,0); }
-        }
+        @keyframes modalIn { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,.4); } 50% { box-shadow: 0 0 0 5px rgba(34,197,94,0); } }
 
-        /* ===== Header ===== */
         .logo {
-            width: 54px; height: 54px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
+            width: 54px; height: 54px; background: var(--surface);
+            border: 1px solid var(--border); border-radius: 16px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.7rem;
-            box-shadow: 0 2px 10px -3px rgba(24,24,27,0.07);
-            margin-bottom: 12px;
-            animation: fadeUp .45s var(--ease) both;
+            font-size: 1.7rem; box-shadow: 0 2px 10px -3px rgba(24,24,27,.07);
+            margin-bottom: 12px; animation: fadeUp .45s var(--ease) both;
         }
         h1 { margin: 0; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em; animation: fadeUp .45s var(--ease) .05s both; }
-        .subtitle {
-            margin: 7px 0 0; font-size: .78rem; color: var(--muted);
-            display: flex; align-items: center; gap: 7px; font-weight: 500;
-            animation: fadeUp .45s var(--ease) .1s both;
-        }
-        .live-dot {
-            width: 7px; height: 7px; background: #22c55e; border-radius: 50%;
-            animation: pulse 2.4s infinite;
-        }
+        .subtitle { margin: 7px 0 0; font-size: .78rem; color: var(--muted); display: flex; align-items: center; gap: 7px; font-weight: 500; animation: fadeUp .45s var(--ease) .1s both; }
+        .live-dot { width: 7px; height: 7px; background: #22c55e; border-radius: 50%; animation: pulse 2.4s infinite; }
 
-        /* ===== Search ===== */
         .search-wrap { position: relative; width: 100%; max-width: 420px; margin: 1.5rem 0 2rem; animation: fadeUp .45s var(--ease) .15s both; }
-        .search-wrap .search-icon {
-            position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
-            color: var(--muted); font-size: .9rem; pointer-events: none;
-        }
+        .search-wrap .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: .9rem; pointer-events: none; }
         .search-box {
             width: 100%; padding: 12px 16px 12px 42px;
             border-radius: 12px; border: 1px solid var(--border);
             background: var(--surface); color: var(--text);
-            font-size: 16px; /* กัน iOS ซูมตอนโฟกัส */
-            font-family: inherit;
+            font-size: 16px; font-family: inherit;
             box-shadow: 0 1px 2px rgba(24,24,27,.04);
-            transition: border-color .2s, box-shadow .2s;
-            appearance: none;
+            transition: border-color .2s, box-shadow .2s; appearance: none;
         }
         .search-box::placeholder { color: #b0b0b8; }
-        .search-box:focus {
-            outline: none; border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-soft);
-        }
+        .search-box:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
 
-        /* ===== Grid & Card ===== */
-        .grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1rem; width: 100%; max-width: 1020px;
-        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; width: 100%; max-width: 1020px; }
         .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1.15rem 1.25rem;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 16px; padding: 1.15rem 1.25rem;
             box-shadow: 0 1px 2px rgba(24,24,27,.04);
             transition: box-shadow .25s var(--ease), border-color .25s;
         }
-        /* animation ใส่เฉพาะการ์ดใหม่ผ่าน class นี้เท่านั้น */
         .card.enter { animation: fadeUp .4s var(--ease) both; }
         @media (hover: hover) {
-            .card:hover {
-                box-shadow: 0 10px 28px -12px rgba(24,24,27,.12);
-                border-color: #dcdce2;
-            }
+            .card:hover { box-shadow: 0 10px 28px -12px rgba(24,24,27,.12); border-color: #dcdce2; }
         }
         .card-header { display: flex; align-items: center; gap: 11px; margin-bottom: 11px; }
         .avatar {
@@ -124,42 +70,24 @@
             display: flex; align-items: center; justify-content: center;
             color: #fff; font-weight: 700; font-size: .95rem;
         }
-        .username {
-            font-weight: 700; font-size: 1rem; letter-spacing: -0.01em;
-            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-        }
+        .username { font-weight: 700; font-size: 1rem; letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .eggs-btn {
-            margin-left: auto;
-            background: var(--primary-soft); border: 1px solid transparent;
-            color: var(--primary); font-family: inherit;
-            font-size: .76rem; font-weight: 600;
+            margin-left: auto; background: var(--primary-soft); border: 1px solid transparent;
+            color: var(--primary); font-family: inherit; font-size: .76rem; font-weight: 600;
             padding: 8px 15px; border-radius: 10px; cursor: pointer; white-space: nowrap;
             transition: background .2s, color .2s;
         }
         .eggs-btn:active { background: var(--primary); color: #fff; }
 
-        /* ===== Stats ===== */
-        .stat {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 8px 0; font-size: .9rem;
-        }
+        .stat { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: .9rem; }
         .stat + .stat { border-top: 1px dashed var(--border); }
         .stat-label { color: var(--muted); font-weight: 500; }
         .stat-value { font-weight: 600; font-variant-numeric: tabular-nums; }
-        .val-egg   { color: var(--gold); font-weight: 700; }
+        .val-egg { color: var(--gold); font-weight: 700; }
         .val-money { color: var(--green); font-weight: 700; }
-        .timer {
-            font-weight: 700; color: var(--primary);
-            background: var(--primary-soft);
-            padding: 3px 11px; border-radius: 999px; font-size: .84rem;
-        }
-        .no-results {
-            grid-column: 1 / -1; text-align: center;
-            color: var(--muted); padding: 3rem 0; font-size: .92rem;
-            animation: fadeIn .3s both;
-        }
+        .timer { font-weight: 700; color: var(--primary); background: var(--primary-soft); padding: 3px 11px; border-radius: 999px; font-size: .84rem; }
+        .no-results { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 3rem 0; font-size: .92rem; animation: fadeIn .3s both; }
 
-        /* ===== Modal ===== */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(24,24,27,.35);
             backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
@@ -175,11 +103,7 @@
             box-shadow: 0 20px 50px -12px rgba(0,0,0,.25);
             animation: modalIn .3s var(--ease);
         }
-        .modal-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 1rem 1.2rem; border-bottom: 1px solid var(--border);
-            flex-shrink: 0;
-        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.2rem; border-bottom: 1px solid var(--border); flex-shrink: 0; }
         .modal-title { font-weight: 700; font-size: .95rem; }
         .modal-title span { color: var(--primary); }
         .modal-close {
@@ -189,14 +113,9 @@
             transition: background .2s, color .2s;
         }
         .modal-close:active { background: #e8e8ec; color: var(--text); }
-        .modal-body {
-            padding: 1rem 1.2rem; overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            display: flex; flex-direction: column; gap: .5rem;
-        }
+        .modal-body { padding: 1rem 1.2rem; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: .5rem; }
         .empty-state { color: var(--muted); text-align: center; padding: 1.5rem 0; font-size: .9rem; animation: fadeIn .3s both; }
 
-        /* ===== Egg rows ===== */
         .egg-row {
             display: flex; align-items: center; gap: 10px;
             padding: 9px; background: #fafafa;
@@ -204,16 +123,9 @@
         }
         .egg-row.enter { animation: fadeUp .35s var(--ease) both; }
         .egg-icon { width: 34px; height: 34px; object-fit: contain; flex-shrink: 0; }
-        .egg-fallback {
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; background: var(--primary-soft); border-radius: 10px;
-        }
+        .egg-fallback { display: flex; align-items: center; justify-content: center; font-size: 20px; background: var(--primary-soft); border-radius: 10px; }
         .egg-bar { position: relative; flex: 1; height: 27px; background: #232329; border-radius: 8px; overflow: hidden; }
-        .egg-fill {
-            position: absolute; left: 0; top: 0; bottom: 0; width: 0;
-            background: linear-gradient(90deg, #34d058, #22863a);
-            transition: width .8s var(--ease);
-        }
+        .egg-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: linear-gradient(90deg, #34d058, #22863a); transition: width .8s var(--ease); }
         .egg-time {
             position: relative; z-index: 1; height: 100%;
             display: flex; align-items: center; justify-content: center;
@@ -221,9 +133,19 @@
             letter-spacing: .02em; text-shadow: 0 1px 2px rgba(0,0,0,.5);
         }
 
+        /* ปุ่ม Open */
+        .egg-open {
+            flex-shrink: 0;
+            background: #16a34a; color: #fff; border: none;
+            font-family: inherit; font-size: .74rem; font-weight: 700;
+            padding: 8px 14px; border-radius: 9px; cursor: pointer;
+            transition: background .2s, transform .1s;
+        }
+        .egg-open:active { background: #15803d; transform: scale(.94); }
+        .egg-open:disabled { opacity: .55; cursor: default; transform: none; }
+
         .footer { margin-top: 2.25rem; font-size: .75rem; color: var(--muted); text-align: center; animation: fadeUp .45s var(--ease) .2s both; }
 
-        /* ===== Mobile ===== */
         @media (max-width: 640px) {
             body { padding: 1.5rem 1rem 2.25rem; }
             h1 { font-size: 1.35rem; }
@@ -239,7 +161,6 @@
             .username { font-size: .92rem; }
             .stat { font-size: .85rem; }
         }
-
         @media (prefers-reduced-motion: reduce) {
             * { animation: none !important; transition: none !important; }
         }
@@ -258,7 +179,6 @@
 
     <div class="grid" id="dataGrid"></div>
 
-    <!-- หน้าต่าง Eggs -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <div class="modal-header">
@@ -273,7 +193,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             databaseURL: "https://key1-ab4b3-default-rtdb.asia-southeast1.firebasedatabase.app"
@@ -299,10 +219,7 @@
             const abs = Math.abs(num);
             const sign = num < 0 ? '-' : '';
             const units = [
-                { v: 1e12, s: 't' },
-                { v: 1e9,  s: 'b' },
-                { v: 1e6,  s: 'm' },
-                { v: 1e3,  s: 'k' }
+                { v: 1e12, s: 't' }, { v: 1e9, s: 'b' }, { v: 1e6, s: 'm' }, { v: 1e3, s: 'k' }
             ];
             for (const u of units) {
                 if (abs >= u.v) {
@@ -326,13 +243,37 @@
             return AVATAR_COLORS[h % AVATAR_COLORS.length];
         }
 
-        // =====================================================
-        // ระบบการ์ดแบบ update-in-place:
-        // สร้างครั้งเดียว (มี animation) → ครั้งต่อ ๆ ไปแก้ค่าใน DOM เดิม
-        // ทำให้ข้อมูลรีเฟรชแล้วไม่มีอะไรเด้ง/กระพริบเลย
-        // =====================================================
+        function isEggReady(egg) {
+            const fill = Number(egg.fill) || 0;
+            if (fill >= 0.99) return true;
+            const t = String(egg.time ?? '').trim().toLowerCase();
+            if (t.includes('ready') || t.includes('พร้อม')) return true;
+            const nums = t.match(/\d+/g);
+            if (nums && nums.length > 0 && nums.every(n => Number(n) === 0)) return true;
+            return false;
+        }
+
+        async function sendHatch(username, eggId, btn) {
+            if (btn.disabled) return;
+            btn.disabled = true;
+            btn.textContent = '...';
+            try {
+                await set(ref(db, `hatchQueue/${username}`), {
+                    entry: eggId || '',
+                    ts: Date.now()
+                });
+                btn.textContent = '✓';
+            } catch {
+                btn.textContent = '✕';
+            }
+            setTimeout(() => {
+                btn.textContent = 'Open';
+                btn.disabled = false;
+            }, 4000);
+        }
+
         const grid = document.getElementById('dataGrid');
-        const cards = new Map(); // username -> { root, eggEl, moneyEl, speedEl, playersEl }
+        const cards = new Map();
         let emptyStateEl = null;
 
         function buildCard(username, data, resetTime) {
@@ -360,10 +301,7 @@
         }
 
         function updateCardValues(entry, data) {
-            const moneyText = (data.money && String(data.money).trim() !== '')
-                ? data.money
-                : '-';
-            // textContent = อัปเดตเงียบ ๆ ไม่มี animation (และกัน XSS อัตโนมัติ)
+            const moneyText = (data.money && String(data.money).trim() !== '') ? data.money : '-';
             entry.eggEl.textContent = `${data.eggCount} ฟอง`;
             entry.moneyEl.textContent = moneyText;
             entry.speedEl.textContent = abbreviateNumber(data.speed);
@@ -396,10 +334,8 @@
 
                 const existing = cards.get(username);
                 if (existing) {
-                    // การ์ดเดิม → อัปเดตค่าในที่ ไม่มี animation
                     updateCardValues(existing, data);
                 } else {
-                    // การ์ดใหม่ → สร้างพร้อม fadeUp
                     const entry = buildCard(username, data, resetTime);
                     entry.root.classList.add('enter');
                     entry.root.style.animationDelay = `${Math.min(newCount * 0.05, 0.3)}s`;
@@ -410,7 +346,6 @@
                 }
             }
 
-            // เอาการ์ดที่หายไป (offline / ค้นหาไม่ตรง) ออก
             for (const [username, entry] of [...cards]) {
                 if (!visible.has(username)) {
                     entry.root.remove();
@@ -421,7 +356,6 @@
             setEmptyState(visible.size === 0);
         }
 
-        // ===== ระบบโหลดรูปไข่จาก Roblox Thumbnail API =====
         const thumbCache = new Map();
 
         async function getThumbUrl(assetId) {
@@ -475,10 +409,10 @@
             return Object.keys(eggs).sort((a, b) => Number(a) - Number(b)).map(k => eggs[k]);
         }
 
-        // ===== Modal แบบ update-in-place เหมือนกัน =====
-        let modalRows = null; // [{ root, fillEl, timeEl, icon }]
+        // ===== Modal =====
+        let modalRows = null;
 
-        function createEggRow(egg, index) {
+        function createEggRow(egg, index, username) {
             const row = document.createElement('div');
             row.className = 'egg-row';
             row.style.animationDelay = `${Math.min(index * 0.04, 0.25)}s`;
@@ -500,7 +434,14 @@
 
             row.appendChild(bar);
 
-            return { root: row, fillEl: fill, timeEl: time, icon: String(egg.icon ?? '') };
+            const openBtn = document.createElement('button');
+            openBtn.className = 'egg-open';
+            openBtn.textContent = 'Open';
+            openBtn.hidden = true;
+            openBtn.addEventListener('click', () => sendHatch(username, String(egg.id ?? ''), openBtn));
+            row.appendChild(openBtn);
+
+            return { root: row, fillEl: fill, timeEl: time, openBtn, icon: String(egg.icon ?? '') };
         }
 
         function renderModalBody(force = false) {
@@ -514,7 +455,6 @@
                 return;
             }
 
-            // สร้างใหม่เฉพาะเมื่อจำนวน/รูปไข่เปลี่ยน ไม่งั้นแค่อัปเดตเวลา+แถบในแถวเดิม
             const needsRebuild = force || !modalRows
                 || modalRows.length !== eggs.length
                 || eggs.some((e, i) => modalRows[i].icon !== String(e.icon ?? ''));
@@ -522,21 +462,22 @@
             if (needsRebuild) {
                 body.innerHTML = '';
                 modalRows = eggs.map((egg, i) => {
-                    const r = createEggRow(egg, i);
+                    const r = createEggRow(egg, i, modalCurrentUser);
                     r.root.classList.add('enter');
                     const pct = Math.max(0, Math.min(1, Number(egg.fill) || 0));
                     requestAnimationFrame(() => { r.fillEl.style.width = (pct * 100) + '%'; });
                     r.timeEl.textContent = egg.time || '';
+                    r.openBtn.hidden = !isEggReady(egg);
                     body.appendChild(r.root);
                     return r;
                 });
             } else {
-                // อัปเดตเงียบ ๆ (แถบจะไหลไปค่าใหม่แบบนุ่ม ๆ ไม่มีการเด้ง)
                 eggs.forEach((egg, i) => {
                     const r = modalRows[i];
                     r.timeEl.textContent = egg.time || '';
                     const pct = Math.max(0, Math.min(1, Number(egg.fill) || 0));
                     r.fillEl.style.width = (pct * 100) + '%';
+                    r.openBtn.hidden = !isEggReady(egg);
                 });
             }
         }
@@ -544,7 +485,7 @@
         function openModal(username) {
             modalCurrentUser = username;
             document.getElementById('modalUser').textContent = username;
-            modalRows = null; // เปิดใหม่ = สร้างแถวใหม่พร้อม animation
+            modalRows = null;
             renderModalBody();
             document.getElementById('modalOverlay').classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -558,7 +499,7 @@
 
         onValue(serversRef, (snapshot) => {
             currentData = snapshot.val() || {};
-            renderCards(); // อัปเดตแบบเงียบ ๆ (animation เฉพาะการ์ดใหม่)
+            renderCards();
             if (modalCurrentUser) {
                 if (currentData[modalCurrentUser]) renderModalBody();
                 else closeModal();
