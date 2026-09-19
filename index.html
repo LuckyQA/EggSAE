@@ -37,6 +37,7 @@
         ::-webkit-scrollbar-thumb { background: #d9d9e0; border-radius: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
 
+        /* ===== Animations (เล่นเฉพาะตอนโผล่ครั้งแรก) ===== */
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
@@ -51,6 +52,7 @@
             50% { box-shadow: 0 0 0 5px rgba(34,197,94,0); }
         }
 
+        /* ===== Header ===== */
         .logo {
             width: 54px; height: 54px;
             background: var(--surface);
@@ -73,6 +75,7 @@
             animation: pulse 2.4s infinite;
         }
 
+        /* ===== Search ===== */
         .search-wrap { position: relative; width: 100%; max-width: 420px; margin: 1.5rem 0 2rem; animation: fadeUp .45s var(--ease) .15s both; }
         .search-wrap .search-icon {
             position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
@@ -82,7 +85,7 @@
             width: 100%; padding: 12px 16px 12px 42px;
             border-radius: 12px; border: 1px solid var(--border);
             background: var(--surface); color: var(--text);
-            font-size: 16px;
+            font-size: 16px; /* กัน iOS ซูมตอนโฟกัส */
             font-family: inherit;
             box-shadow: 0 1px 2px rgba(24,24,27,.04);
             transition: border-color .2s, box-shadow .2s;
@@ -94,6 +97,7 @@
             box-shadow: 0 0 0 3px var(--primary-soft);
         }
 
+        /* ===== Grid & Card ===== */
         .grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1rem; width: 100%; max-width: 1020px;
@@ -105,11 +109,14 @@
             padding: 1.15rem 1.25rem;
             box-shadow: 0 1px 2px rgba(24,24,27,.04);
             transition: box-shadow .25s var(--ease), border-color .25s;
-            animation: fadeUp .4s var(--ease) both;
         }
-        .card:hover {
-            box-shadow: 0 10px 28px -12px rgba(24,24,27,.12);
-            border-color: #dcdce2;
+        /* animation ใส่เฉพาะการ์ดใหม่ผ่าน class นี้เท่านั้น */
+        .card.enter { animation: fadeUp .4s var(--ease) both; }
+        @media (hover: hover) {
+            .card:hover {
+                box-shadow: 0 10px 28px -12px rgba(24,24,27,.12);
+                border-color: #dcdce2;
+            }
         }
         .card-header { display: flex; align-items: center; gap: 11px; margin-bottom: 11px; }
         .avatar {
@@ -129,9 +136,9 @@
             padding: 8px 15px; border-radius: 10px; cursor: pointer; white-space: nowrap;
             transition: background .2s, color .2s;
         }
-        .eggs-btn:hover { background: var(--primary); color: #fff; }
-        .eggs-btn:active { background: #6d28d9; color: #fff; }
+        .eggs-btn:active { background: var(--primary); color: #fff; }
 
+        /* ===== Stats ===== */
         .stat {
             display: flex; justify-content: space-between; align-items: center;
             padding: 8px 0; font-size: .9rem;
@@ -152,6 +159,7 @@
             animation: fadeIn .3s both;
         }
 
+        /* ===== Modal ===== */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(24,24,27,.35);
             backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
@@ -180,8 +188,7 @@
             color: var(--muted); font-size: .85rem; cursor: pointer;
             transition: background .2s, color .2s;
         }
-        .modal-close:hover { background: #f4f4f5; color: var(--text); }
-        .modal-close:active { background: #e8e8ec; }
+        .modal-close:active { background: #e8e8ec; color: var(--text); }
         .modal-body {
             padding: 1rem 1.2rem; overflow-y: auto;
             -webkit-overflow-scrolling: touch;
@@ -189,12 +196,13 @@
         }
         .empty-state { color: var(--muted); text-align: center; padding: 1.5rem 0; font-size: .9rem; animation: fadeIn .3s both; }
 
+        /* ===== Egg rows ===== */
         .egg-row {
             display: flex; align-items: center; gap: 10px;
             padding: 9px; background: #fafafa;
             border: 1px solid var(--border); border-radius: 12px;
-            animation: fadeUp .35s var(--ease) both;
         }
+        .egg-row.enter { animation: fadeUp .35s var(--ease) both; }
         .egg-icon { width: 34px; height: 34px; object-fit: contain; flex-shrink: 0; }
         .egg-fallback {
             display: flex; align-items: center; justify-content: center;
@@ -215,12 +223,7 @@
 
         .footer { margin-top: 2.25rem; font-size: .75rem; color: var(--muted); text-align: center; animation: fadeUp .45s var(--ease) .2s both; }
 
-        @media (hover: hover) {
-            .card:hover { box-shadow: 0 10px 28px -12px rgba(24,24,27,.12); border-color: #dcdce2; }
-            .eggs-btn:hover { background: var(--primary); color: #fff; }
-            .modal-close:hover { background: #f4f4f5; color: var(--text); }
-        }
-
+        /* ===== Mobile ===== */
         @media (max-width: 640px) {
             body { padding: 1.5rem 1rem 2.25rem; }
             h1 { font-size: 1.35rem; }
@@ -229,7 +232,7 @@
             .card { padding: 1rem 1.1rem; }
             .search-wrap { margin: 1.25rem 0 1.5rem; }
             .modal-overlay { padding: .75rem; align-items: flex-end; }
-            .modal { max-width: 100%; max-height: 75dvh; border-radius: 18px 18px 14px 14px; animation: modalIn .3s var(--ease); }
+            .modal { max-width: 100%; max-height: 75dvh; }
             .footer { margin-top: 1.75rem; }
         }
         @media (max-width: 380px) {
@@ -246,7 +249,7 @@
 
     <div class="logo">🥚</div>
     <h1>Steal An Egg</h1>
-    <p class="subtitle"><span class="live-dot"></span> LIVE</p>
+    <p class="subtitle"><span class="live-dot"></span> LIVE — auto updating</p>
 
     <div class="search-wrap">
         <span class="search-icon">🔍</span>
@@ -255,6 +258,7 @@
 
     <div class="grid" id="dataGrid"></div>
 
+    <!-- หน้าต่าง Eggs -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <div class="modal-header">
@@ -280,7 +284,6 @@
         const serversRef = ref(db, 'servers');
         let currentData = {};
         let modalCurrentUser = null;
-        let lastRenderedJson = null;
 
         function getRealWorldResetTimer() {
             const nowInSeconds = Math.floor(Date.now() / 1000);
@@ -323,60 +326,102 @@
             return AVATAR_COLORS[h % AVATAR_COLORS.length];
         }
 
-        onValue(serversRef, (snapshot) => {
-            currentData = snapshot.val() || {};
-            renderCards();
-            if (modalCurrentUser) {
-                if (currentData[modalCurrentUser]) renderModalBody();
-                else closeModal();
-            }
-        });
+        // =====================================================
+        // ระบบการ์ดแบบ update-in-place:
+        // สร้างครั้งเดียว (มี animation) → ครั้งต่อ ๆ ไปแก้ค่าใน DOM เดิม
+        // ทำให้ข้อมูลรีเฟรชแล้วไม่มีอะไรเด้ง/กระพริบเลย
+        // =====================================================
+        const grid = document.getElementById('dataGrid');
+        const cards = new Map(); // username -> { root, eggEl, moneyEl, speedEl, playersEl }
+        let emptyStateEl = null;
 
-        function renderCards(force = false) {
-            const dataJson = JSON.stringify(currentData);
-            if (!force && dataJson === lastRenderedJson) return;
-            lastRenderedJson = dataJson;
+        function buildCard(username, data, resetTime) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="avatar" style="background:${avatarColor(username)}">${escapeHtml(username[0].toUpperCase())}</div>
+                    <div class="username">${escapeHtml(username)}</div>
+                    <button class="eggs-btn" data-user="${escapeHtml(username)}">Eggs</button>
+                </div>
+                <div class="stat"><span class="stat-label">🥚 Rare Eggs</span><span class="stat-value val-egg js-egg"></span></div>
+                <div class="stat"><span class="stat-label">💰 Money</span><span class="stat-value val-money js-money"></span></div>
+                <div class="stat"><span class="stat-label">⚡ Speed</span><span class="stat-value js-speed"></span></div>
+                <div class="stat"><span class="stat-label">👥 Players</span><span class="stat-value js-players"></span></div>
+                <div class="stat"><span class="stat-label">🔄 Reset In</span><span class="stat-value timer reset-timer">${resetTime}</span></div>
+            `;
+            return {
+                root: card,
+                eggEl: card.querySelector('.js-egg'),
+                moneyEl: card.querySelector('.js-money'),
+                speedEl: card.querySelector('.js-speed'),
+                playersEl: card.querySelector('.js-players')
+            };
+        }
 
-            const grid = document.getElementById('dataGrid');
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            const resetTime = getRealWorldResetTimer();
-            grid.innerHTML = '';
-            const now = Date.now();
-            let shown = 0;
+        function updateCardValues(entry, data) {
+            const moneyText = (data.money && String(data.money).trim() !== '')
+                ? data.money
+                : '-';
+            // textContent = อัปเดตเงียบ ๆ ไม่มี animation (และกัน XSS อัตโนมัติ)
+            entry.eggEl.textContent = `${data.eggCount} ฟอง`;
+            entry.moneyEl.textContent = moneyText;
+            entry.speedEl.textContent = abbreviateNumber(data.speed);
+            entry.playersEl.textContent = `${data.playerCount} คน`;
+        }
 
-            for (const [username, data] of Object.entries(currentData)) {
-                if (now - data.lastUpdated > 120000) continue;
-
-                if (username.toLowerCase().includes(search)) {
-                    const moneyText = (data.money && String(data.money).trim() !== '')
-                        ? escapeHtml(data.money)
-                        : '-';
-
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.style.animationDelay = `${Math.min(shown * 0.05, 0.3)}s`;
-                    card.innerHTML = `
-                        <div class="card-header">
-                            <div class="avatar" style="background:${avatarColor(username)}">${escapeHtml(username[0].toUpperCase())}</div>
-                            <div class="username">${escapeHtml(username)}</div>
-                            <button class="eggs-btn" data-user="${escapeHtml(username)}">Eggs</button>
-                        </div>
-                        <div class="stat"><span class="stat-label">🥚 Rare Eggs</span><span class="stat-value val-egg">${data.eggCount} ฟอง</span></div>
-                        <div class="stat"><span class="stat-label">💰 Money</span><span class="stat-value val-money">${moneyText}</span></div>
-                        <div class="stat"><span class="stat-label">⚡ Speed</span><span class="stat-value">${abbreviateNumber(data.speed)}</span></div>
-                        <div class="stat"><span class="stat-label">👥 Players</span><span class="stat-value">${data.playerCount} คน</span></div>
-                        <div class="stat"><span class="stat-label">🔄 Reset In</span><span class="stat-value timer reset-timer">${resetTime}</span></div>
-                    `;
-                    grid.appendChild(card);
-                    shown++;
-                }
-            }
-
-            if (shown === 0) {
-                grid.innerHTML = `<div class="no-results">🔍 ไม่พบผู้เล่น</div>`;
+        function setEmptyState(show) {
+            if (show && !emptyStateEl) {
+                emptyStateEl = document.createElement('div');
+                emptyStateEl.className = 'no-results';
+                emptyStateEl.textContent = '🔍 ไม่พบผู้เล่น';
+                grid.appendChild(emptyStateEl);
+            } else if (!show && emptyStateEl) {
+                emptyStateEl.remove();
+                emptyStateEl = null;
             }
         }
 
+        function renderCards() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const resetTime = getRealWorldResetTimer();
+            const now = Date.now();
+            const visible = new Set();
+            let newCount = 0;
+
+            for (const [username, data] of Object.entries(currentData)) {
+                if (now - data.lastUpdated > 120000) continue;
+                if (!username.toLowerCase().includes(search)) continue;
+                visible.add(username);
+
+                const existing = cards.get(username);
+                if (existing) {
+                    // การ์ดเดิม → อัปเดตค่าในที่ ไม่มี animation
+                    updateCardValues(existing, data);
+                } else {
+                    // การ์ดใหม่ → สร้างพร้อม fadeUp
+                    const entry = buildCard(username, data, resetTime);
+                    entry.root.classList.add('enter');
+                    entry.root.style.animationDelay = `${Math.min(newCount * 0.05, 0.3)}s`;
+                    updateCardValues(entry, data);
+                    grid.appendChild(entry.root);
+                    cards.set(username, entry);
+                    newCount++;
+                }
+            }
+
+            // เอาการ์ดที่หายไป (offline / ค้นหาไม่ตรง) ออก
+            for (const [username, entry] of [...cards]) {
+                if (!visible.has(username)) {
+                    entry.root.remove();
+                    cards.delete(username);
+                }
+            }
+
+            setEmptyState(visible.size === 0);
+        }
+
+        // ===== ระบบโหลดรูปไข่จาก Roblox Thumbnail API =====
         const thumbCache = new Map();
 
         async function getThumbUrl(assetId) {
@@ -430,6 +475,9 @@
             return Object.keys(eggs).sort((a, b) => Number(a) - Number(b)).map(k => eggs[k]);
         }
 
+        // ===== Modal แบบ update-in-place เหมือนกัน =====
+        let modalRows = null; // [{ root, fillEl, timeEl, icon }]
+
         function createEggRow(egg, index) {
             const row = document.createElement('div');
             row.className = 'egg-row';
@@ -444,40 +492,59 @@
 
             const fill = document.createElement('div');
             fill.className = 'egg-fill';
-            const pct = Math.max(0, Math.min(1, Number(egg.fill) || 0));
-            requestAnimationFrame(() => { fill.style.width = (pct * 100) + '%'; });
             bar.appendChild(fill);
 
             const time = document.createElement('span');
             time.className = 'egg-time';
-            time.textContent = egg.time || '';
             bar.appendChild(time);
 
             row.appendChild(bar);
-            return row;
+
+            return { root: row, fillEl: fill, timeEl: time, icon: String(egg.icon ?? '') };
         }
 
-        function renderModalBody() {
+        function renderModalBody(force = false) {
             const body = document.getElementById('modalBody');
-            body.innerHTML = '';
-
             const userData = currentData[modalCurrentUser];
             const eggs = normalizeEggs(userData ? userData.eggs : null);
 
             if (eggs.length === 0) {
-                const empty = document.createElement('div');
-                empty.className = 'empty-state';
-                empty.textContent = 'ไม่มีไข่ที่กำลังฟัก';
-                body.appendChild(empty);
+                modalRows = null;
+                body.innerHTML = `<div class="empty-state">ไม่มีไข่ที่กำลังฟัก</div>`;
                 return;
             }
 
-            eggs.forEach((egg, i) => body.appendChild(createEggRow(egg, i)));
+            // สร้างใหม่เฉพาะเมื่อจำนวน/รูปไข่เปลี่ยน ไม่งั้นแค่อัปเดตเวลา+แถบในแถวเดิม
+            const needsRebuild = force || !modalRows
+                || modalRows.length !== eggs.length
+                || eggs.some((e, i) => modalRows[i].icon !== String(e.icon ?? ''));
+
+            if (needsRebuild) {
+                body.innerHTML = '';
+                modalRows = eggs.map((egg, i) => {
+                    const r = createEggRow(egg, i);
+                    r.root.classList.add('enter');
+                    const pct = Math.max(0, Math.min(1, Number(egg.fill) || 0));
+                    requestAnimationFrame(() => { r.fillEl.style.width = (pct * 100) + '%'; });
+                    r.timeEl.textContent = egg.time || '';
+                    body.appendChild(r.root);
+                    return r;
+                });
+            } else {
+                // อัปเดตเงียบ ๆ (แถบจะไหลไปค่าใหม่แบบนุ่ม ๆ ไม่มีการเด้ง)
+                eggs.forEach((egg, i) => {
+                    const r = modalRows[i];
+                    r.timeEl.textContent = egg.time || '';
+                    const pct = Math.max(0, Math.min(1, Number(egg.fill) || 0));
+                    r.fillEl.style.width = (pct * 100) + '%';
+                });
+            }
         }
 
         function openModal(username) {
             modalCurrentUser = username;
             document.getElementById('modalUser').textContent = username;
+            modalRows = null; // เปิดใหม่ = สร้างแถวใหม่พร้อม animation
             renderModalBody();
             document.getElementById('modalOverlay').classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -488,6 +555,15 @@
             document.getElementById('modalOverlay').classList.remove('active');
             document.body.style.overflow = '';
         }
+
+        onValue(serversRef, (snapshot) => {
+            currentData = snapshot.val() || {};
+            renderCards(); // อัปเดตแบบเงียบ ๆ (animation เฉพาะการ์ดใหม่)
+            if (modalCurrentUser) {
+                if (currentData[modalCurrentUser]) renderModalBody();
+                else closeModal();
+            }
+        });
 
         document.getElementById('dataGrid').addEventListener('click', (e) => {
             const btn = e.target.closest('.eggs-btn');
@@ -509,7 +585,7 @@
             });
         }, 1000);
 
-        document.getElementById('searchInput').addEventListener('input', () => renderCards(true));
+        document.getElementById('searchInput').addEventListener('input', renderCards);
     </script>
 </body>
 </html>
