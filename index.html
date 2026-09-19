@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAE</title>
+    <title>Rare Egg Tracker</title>
     <style>
         :root { --bg: #121212; --surface: #1e1e1e; --text: #e0e0e0; --primary: #bb86fc; --egg: #ffd700; }
         * { box-sizing: border-box; }
@@ -21,6 +21,7 @@
         .stat { margin: 5px 0; font-size: 0.95rem; display: flex; justify-content: space-between; }
         .stat.highlight { color: var(--egg); font-weight: bold; }
 
+        /* ===== Modal GrowingEggs ===== */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 1rem; }
         .modal-overlay.active { display: flex; }
         .modal { background: var(--surface); border: 1px solid #333; border-radius: 12px; width: 100%; max-width: 420px; max-height: 70vh; display: flex; flex-direction: column; animation: pop 0.15s ease; }
@@ -43,10 +44,11 @@
 </head>
 <body>
 
-    <h1>Steal An Egg/h1>
+    <h1>🥚 Rare Egg Tracker</h1>
     <input type="text" id="searchInput" class="search-box" placeholder="ค้นหาชื่อผู้เล่น...">
     <div class="grid" id="dataGrid"></div>
 
+    <!-- หน้าต่าง GrowingEggs -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <div class="modal-header">
@@ -71,6 +73,7 @@
         let currentData = {};
         let modalCurrentUser = null;
 
+        // Reset In: นับถอยหลังจากเวลาจริงของโลก วนใหม่ทุก 5 นาที
         function getRealWorldResetTimer() {
             const nowInSeconds = Math.floor(Date.now() / 1000);
             const cycleLength = 300;
@@ -80,9 +83,14 @@
             return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
 
+        onValue(serversData, null);
+
+        function serversData(snapshot) {}
+
         onValue(serversRef, (snapshot) => {
             currentData = snapshot.val() || {};
             renderCards();
+            // ถ้าหน้าต่างกำลังเปิดอยู่ ให้อัปเดตข้อมูลในหน้าต่างด้วย (เรียลไทม์)
             if (modalCurrentUser) {
                 if (currentData[modalCurrentUser]) renderModalBody();
                 else closeModal();
@@ -118,6 +126,8 @@
             }
         }
 
+        // ===== GrowingEggs Modal =====
+        // Firebase บางทีเก็บ array เป็น object ตัวเลข key — จัดรูปให้เป็น array ก่อน
         function normalizeEggs(eggs) {
             if (!eggs) return [];
             if (Array.isArray(eggs)) return eggs;
@@ -128,6 +138,7 @@
             const row = document.createElement('div');
             row.className = 'egg-row';
 
+            // รูปไข่ (ถ้าโหลดไม่ได้ สลับเป็น 🥚)
             let iconEl;
             if (egg.icon) {
                 iconEl = document.createElement('img');
@@ -146,6 +157,7 @@
             }
             row.appendChild(iconEl);
 
+            // แถบเวลา แบบภาพที่ 2 (Fill เขียว + ข้อความกลางแถบ)
             const bar = document.createElement('div');
             bar.className = 'egg-bar';
 
@@ -194,11 +206,13 @@
             document.getElementById('modalOverlay').classList.remove('active');
         }
 
+        // ปุ่ม GrowingEggs ข้างชื่อแต่ละคน
         document.getElementById('dataGrid').addEventListener('click', (e) => {
             const btn = e.target.closest('.eggs-btn');
             if (btn) openModal(btn.dataset.user);
         });
 
+        // ปิดหน้าต่าง: ปุ่ม ✕ / คลิกพื้นหลังนอกหน้าต่าง / กด Esc
         document.getElementById('modalClose').addEventListener('click', closeModal);
         document.getElementById('modalOverlay').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) closeModal();
