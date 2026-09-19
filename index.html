@@ -24,12 +24,10 @@
     <input type="text" id="searchInput" class="search-box" placeholder="ค้นหาชื่อผู้เล่น...">
     <div class="grid" id="dataGrid"></div>
 
-    <!-- ใช้ Firebase JS SDK รูปแบบ Module -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // ⚠️ เอา URL Firebase ของคุณมาใส่ตรงนี้ (ลบ / เครื่องหมายสแลชอันสุดท้ายออก)
         const firebaseConfig = {
             databaseURL: "https://your-project-id-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
@@ -39,7 +37,21 @@
         const serversRef = ref(db, 'servers');
         let currentData = {};
 
-        // onValue จะทำงานทันทีที่มีข้อมูลอัปเดตใน Firebase (เรียลไทม์)
+        // ฟังก์ชันคำนวณเวลานับถอยหลัง 5 นาที จากเวลาโลกจริง (เรียลไทม์)
+        function getRealWorldNightTimer() {
+            const nowInSeconds = Math.floor(Date.now() / 1000);
+            const cycleLength = 300; // 5 นาที (300 วินาที)
+            const remainingSeconds = cycleLength - (nowInSeconds % cycleLength);
+            
+            const minutes = Math.floor(remainingSeconds / 60);
+            const seconds = remainingSeconds % 60;
+            
+            const formattedMinutes = String(minutes).padStart(2, '0');
+            const formattedSeconds = String(seconds).padStart(2, '0');
+            
+            return `${formattedMinutes}:${formattedSeconds}`;
+        }
+
         onValue(serversRef, (snapshot) => {
             currentData = snapshot.val() || {};
             renderCards();
@@ -48,11 +60,12 @@
         function renderCards() {
             const grid = document.getElementById('dataGrid');
             const search = document.getElementById('searchInput').value.toLowerCase();
+            const realNightTime = getRealWorldNightTimer();
             grid.innerHTML = '';
             const now = Date.now();
 
             for (const [username, data] of Object.entries(currentData)) {
-                // ซ่อนผู้เล่นที่ไม่อัปเดตข้อมูลเกิน 2 นาที (120000 ms) - สมมติว่าออกเกมไปแล้ว
+                // ซ่อนผู้เล่นที่ไม่ส่งข้อมูลเกิน 2 นาที
                 if (now - data.lastUpdated > 120000) continue;
 
                 if (username.toLowerCase().includes(search)) {
@@ -62,17 +75,21 @@
                         <div class="username">👤 ${username}</div>
                         <div class="stat highlight"><span>Rare Eggs:</span> <span>${data.eggCount} ฟอง</span></div>
                         <div class="stat"><span>Players:</span> <span>${data.playerCount} คน</span></div>
-                        <div class="stat"><span>Night In:</span> <span>${data.nightTimer}</span></div>
+                        <div class="stat"><span>Night In:</span> <span class="night-timer">${realNightTime}</span></div>
                     `;
                     grid.appendChild(card);
                 }
             }
         }
 
+        setInterval(() => {
+            const realNightTime = getRealWorldNightTimer();
+            document.querySelectorAll('.night-timer').forEach(el => {
+                el.textContent = realNightTime;
+            });
+        }, 1000);
+
         document.getElementById('searchInput').addEventListener('input', renderCards);
-        
-        // ให้หน้าเว็บเช็กข้อมูลเก่าแล้วลบออกเองเรื่อยๆ
-        setInterval(renderCards, 10000); 
     </script>
 </body>
 </html>
