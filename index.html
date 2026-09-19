@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rare Egg Tracker</title>
+    <title>SAE</title>
     <style>
         :root { --bg: #121212; --surface: #1e1e1e; --text: #e0e0e0; --primary: #bb86fc; --egg: #ffd700; }
         * { box-sizing: border-box; }
@@ -21,7 +21,6 @@
         .stat { margin: 5px 0; font-size: 0.95rem; display: flex; justify-content: space-between; }
         .stat.highlight { color: var(--egg); font-weight: bold; }
 
-        /* ===== Modal GrowingEggs ===== */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 1rem; }
         .modal-overlay.active { display: flex; }
         .modal { background: var(--surface); border: 1px solid #333; border-radius: 12px; width: 100%; max-width: 420px; max-height: 70vh; display: flex; flex-direction: column; animation: pop 0.15s ease; }
@@ -33,7 +32,6 @@
         .modal-body { padding: 1rem 1.25rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.6rem; }
         .empty-state { color: #888; text-align: center; padding: 1.5rem 0; font-size: 0.95rem; }
 
-        /* แถวไข่ แบบภาพที่ 2: icon + แถบเวลา */
         .egg-row { display: flex; align-items: center; gap: 10px; padding: 8px; background: var(--bg); border: 1px solid #333; border-radius: 10px; }
         .egg-icon { width: 34px; height: 34px; object-fit: contain; flex-shrink: 0; }
         .egg-fallback { display: flex; align-items: center; justify-content: center; font-size: 22px; }
@@ -44,15 +42,14 @@
 </head>
 <body>
 
-    <h1>🥚 Rare Egg Tracker</h1>
+    <h1>Steal An Egg</h1>
     <input type="text" id="searchInput" class="search-box" placeholder="ค้นหาชื่อผู้เล่น...">
     <div class="grid" id="dataGrid"></div>
 
-    <!-- หน้าต่าง GrowingEggs -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <div class="modal-header">
-                <div class="modal-title">🥚 GrowingEggs — <span id="modalUser"></span></div>
+                <div class="modal-title">Eggs — <span id="modalUser"></span></div>
                 <button class="modal-close" id="modalClose">✕</button>
             </div>
             <div class="modal-body" id="modalBody"></div>
@@ -73,7 +70,6 @@
         let currentData = {};
         let modalCurrentUser = null;
 
-        // Reset In: นับถอยหลังจากเวลาจริงของโลก วนใหม่ทุก 5 นาที
         function getRealWorldResetTimer() {
             const nowInSeconds = Math.floor(Date.now() / 1000);
             const cycleLength = 300;
@@ -83,7 +79,6 @@
             return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
 
-        // ===== แปลงตัวเลขเป็นตัวย่อ: 1k / 10k / 100k / 1m / 1.1b =====
         function abbreviateNumber(num) {
             num = Number(num) || 0;
             const abs = Math.abs(num);
@@ -96,7 +91,6 @@
             ];
             for (const u of units) {
                 if (abs >= u.v) {
-                    // ปัดทศนิยมสูงสุด 2 ตำแหน่ง แล้วตัด 0 ท้ายออก (1.50 → 1.5, 1.00 → 1)
                     const n = (abs / u.v).toFixed(2).replace(/\.?0+$/, '');
                     return sign + n + u.s;
                 }
@@ -104,10 +98,15 @@
             return sign + String(abs);
         }
 
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, c => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[c]));
+        }
+
         onValue(serversRef, (snapshot) => {
             currentData = snapshot.val() || {};
             renderCards();
-            // ถ้าหน้าต่างกำลังเปิดอยู่ ให้อัปเดตข้อมูลในหน้าต่างด้วย (เรียลไทม์)
             if (modalCurrentUser) {
                 if (currentData[modalCurrentUser]) renderModalBody();
                 else closeModal();
@@ -122,18 +121,22 @@
             const now = Date.now();
 
             for (const [username, data] of Object.entries(currentData)) {
-                // ซ่อนผู้เล่นที่ไม่ส่งข้อมูลเกิน 2 นาที
                 if (now - data.lastUpdated > 120000) continue;
 
                 if (username.toLowerCase().includes(search)) {
+                    const moneyText = (data.money && String(data.money).trim() !== '')
+                        ? escapeHtml(data.money)
+                        : '-';
+
                     const card = document.createElement('div');
                     card.className = 'card';
                     card.innerHTML = `
                         <div class="card-header">
-                            <div class="username">👤 ${username}</div>
-                            <button class="eggs-btn" data-user="${username}">GrowingEggs</button>
+                            <div class="username">👤 ${escapeHtml(username)}</div>
+                            <button class="eggs-btn" data-user="${escapeHtml(username)}">Eggs</button>
                         </div>
                         <div class="stat highlight"><span>Rare Eggs:</span> <span>${data.eggCount} ฟอง</span></div>
+                        <div class="stat highlight"><span>Money:</span> <span>${moneyText}</span></div>
                         <div class="stat"><span>Speed:</span> <span>${abbreviateNumber(data.speed)}</span></div>
                         <div class="stat"><span>Players:</span> <span>${data.playerCount} คน</span></div>
                         <div class="stat"><span>Reset In:</span> <span class="reset-timer">${resetTime}</span></div>
@@ -142,8 +145,7 @@
                 }
             }
         }
-
-        // ===== ระบบโหลดรูปไข่จาก Roblox Thumbnail API =====
+        
         const thumbCache = new Map();
 
         async function getThumbUrl(assetId) {
@@ -171,7 +173,6 @@
             return fb;
         }
 
-        // ใส่ icon ลงใน slot: แสดง 🥚 ก่อน แล้วค่อยเปลี่ยนเป็นรูปจริงเมื่อโหลดได้
         function attachEggIcon(slot, rawIcon) {
             const id = String(rawIcon ?? '').trim();
             if (/^\d+$/.test(id)) {
@@ -192,7 +193,6 @@
             }
         }
 
-        // ===== GrowingEggs Modal =====
         function normalizeEggs(eggs) {
             if (!eggs) return [];
             if (Array.isArray(eggs)) return eggs;
