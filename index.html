@@ -6,6 +6,7 @@
     <title>SAE</title>
     <style>
         :root { --bg: #121212; --surface: #1e1e1e; --text: #e0e0e0; --primary: #bb86fc; --egg: #ffd700; }
+        * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 2rem; display: flex; flex-direction: column; align-items: center; }
         h1 { margin-bottom: 1rem; }
         .search-box { width: 100%; max-width: 400px; padding: 10px 15px; border-radius: 8px; border: 1px solid #333; background-color: var(--surface); color: white; margin-bottom: 2rem; font-size: 1rem; }
@@ -13,16 +14,48 @@
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; width: 100%; max-width: 1000px; }
         .card { background-color: var(--surface); padding: 1.5rem; border-radius: 12px; border: 1px solid #333; transition: transform 0.2s; }
         .card:hover { transform: translateY(-5px); }
-        .username { font-size: 1.2rem; font-weight: bold; color: var(--primary); margin-bottom: 10px; }
-        .stat { margin: 5px 0; font-size: 0.95rem; display: flex; justify-content: space-between;}
+        .card-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .username { font-size: 1.2rem; font-weight: bold; color: var(--primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .eggs-btn { background: transparent; border: 1px solid #333; color: var(--text); font-size: 0.72rem; padding: 5px 10px; border-radius: 999px; cursor: pointer; white-space: nowrap; transition: border-color 0.15s, color 0.15s; }
+        .eggs-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .stat { margin: 5px 0; font-size: 0.95rem; display: flex; justify-content: space-between; }
         .stat.highlight { color: var(--egg); font-weight: bold; }
+
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 1rem; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: var(--surface); border: 1px solid #333; border-radius: 12px; width: 100%; max-width: 420px; max-height: 70vh; display: flex; flex-direction: column; animation: pop 0.15s ease; }
+        @keyframes pop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid #333; }
+        .modal-title { font-weight: bold; color: var(--primary); }
+        .modal-close { background: none; border: none; color: var(--text); font-size: 1rem; cursor: pointer; padding: 4px 9px; border-radius: 6px; transition: background 0.15s; }
+        .modal-close:hover { background: #333; }
+        .modal-body { padding: 1rem 1.25rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.6rem; }
+        .empty-state { color: #888; text-align: center; padding: 1.5rem 0; font-size: 0.95rem; }
+
+        /* แถวไข่ แบบภาพที่ 2: icon + แถบเวลา */
+        .egg-row { display: flex; align-items: center; gap: 10px; padding: 8px; background: var(--bg); border: 1px solid #333; border-radius: 10px; }
+        .egg-icon { width: 34px; height: 34px; object-fit: contain; flex-shrink: 0; }
+        .egg-fallback { display: flex; align-items: center; justify-content: center; font-size: 22px; }
+        .egg-bar { position: relative; flex: 1; height: 26px; background: #000; border: 1px solid #2a2a2a; border-radius: 7px; overflow: hidden; }
+        .egg-fill { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, #2fd655, #1da83f); }
+        .egg-time { position: relative; z-index: 1; height: 100%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
     </style>
 </head>
 <body>
 
-    <h1>Steal An Egg</h1>
+    <h1>Steal An Egg/h1>
     <input type="text" id="searchInput" class="search-box" placeholder="ค้นหาชื่อผู้เล่น...">
     <div class="grid" id="dataGrid"></div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">🥚 GrowingEggs — <span id="modalUser"></span></div>
+                <button class="modal-close" id="modalClose">✕</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -36,24 +69,28 @@
         const db = getDatabase(app);
         const serversRef = ref(db, 'servers');
         let currentData = {};
+        let modalCurrentUser = null;
 
         function getRealWorldResetTimer() {
             const nowInSeconds = Math.floor(Date.now() / 1000);
-            const cycleLength = 300; // 5 นาที (300 วินาที)
+            const cycleLength = 300;
             const remainingSeconds = cycleLength - (nowInSeconds % cycleLength);
-
             const minutes = Math.floor(remainingSeconds / 60);
             const seconds = remainingSeconds % 60;
-
-            const formattedMinutes = String(minutes).padStart(2, '0');
-            const formattedSeconds = String(seconds).padStart(2, '0');
-
-            return `${formattedMinutes}:${formattedSeconds}`;
+            return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
+
+        onValue(serversData, null);
+
+        function serversData(snapshot) {}
 
         onValue(serversRef, (snapshot) => {
             currentData = snapshot.val() || {};
             renderCards();
+            if (modalCurrentUser) {
+                if (currentData[modalCurrentUser]) renderModalBody();
+                else closeModal();
+            }
         });
 
         function renderCards() {
@@ -64,14 +101,19 @@
             const now = Date.now();
 
             for (const [username, data] of Object.entries(currentData)) {
+                // ซ่อนผู้เล่นที่ไม่ส่งข้อมูลเกิน 2 นาที
                 if (now - data.lastUpdated > 120000) continue;
 
                 if (username.toLowerCase().includes(search)) {
                     const card = document.createElement('div');
                     card.className = 'card';
                     card.innerHTML = `
-                        <div class="username">👤 ${username}</div>
+                        <div class="card-header">
+                            <div class="username">👤 ${username}</div>
+                            <button class="eggs-btn" data-user="${username}">GrowingEggs</button>
+                        </div>
                         <div class="stat highlight"><span>Rare Eggs:</span> <span>${data.eggCount} ฟอง</span></div>
+                        <div class="stat"><span>Speed:</span> <span>${data.speed ?? 0}</span></div>
                         <div class="stat"><span>Players:</span> <span>${data.playerCount} คน</span></div>
                         <div class="stat"><span>Reset In:</span> <span class="reset-timer">${resetTime}</span></div>
                     `;
@@ -79,6 +121,95 @@
                 }
             }
         }
+
+        function normalizeEggs(eggs) {
+            if (!eggs) return [];
+            if (Array.isArray(eggs)) return eggs;
+            return Object.keys(eggs).sort((a, b) => Number(a) - Number(b)).map(k => eggs[k]);
+        }
+
+        function createEggRow(egg) {
+            const row = document.createElement('div');
+            row.className = 'egg-row';
+
+            let iconEl;
+            if (egg.icon) {
+                iconEl = document.createElement('img');
+                iconEl.className = 'egg-icon';
+                iconEl.src = egg.icon;
+                iconEl.onerror = () => {
+                    const fb = document.createElement('span');
+                    fb.className = 'egg-icon egg-fallback';
+                    fb.textContent = '🥚';
+                    iconEl.replaceWith(fb);
+                };
+            } else {
+                iconEl = document.createElement('span');
+                iconEl.className = 'egg-icon egg-fallback';
+                iconEl.textContent = '🥚';
+            }
+            row.appendChild(iconEl);
+
+            const bar = document.createElement('div');
+            bar.className = 'egg-bar';
+
+            const fill = document.createElement('div');
+            fill.className = 'egg-fill';
+            const pct = Math.max(0, Math.min(1, Number(egg.fill) || 0));
+            fill.style.width = (pct * 100) + '%';
+            bar.appendChild(fill);
+
+            const time = document.createElement('span');
+            time.className = 'egg-time';
+            time.textContent = egg.time || '';
+            bar.appendChild(time);
+
+            row.appendChild(bar);
+            return row;
+        }
+
+        function renderModalBody() {
+            const body = document.getElementById('modalBody');
+            body.innerHTML = '';
+
+            const userData = currentData[modalCurrentUser];
+            const eggs = normalizeEggs(userData ? userData.eggs : null);
+
+            if (eggs.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'empty-state';
+                empty.textContent = 'ไม่มีไข่ที่กำลังฟัก';
+                body.appendChild(empty);
+                return;
+            }
+
+            eggs.forEach(egg => body.appendChild(createEggRow(egg)));
+        }
+
+        function openModal(username) {
+            modalCurrentUser = username;
+            document.getElementById('modalUser').textContent = username;
+            renderModalBody();
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function closeModal() {
+            modalCurrentUser = null;
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        document.getElementById('dataGrid').addEventListener('click', (e) => {
+            const btn = e.target.closest('.eggs-btn');
+            if (btn) openModal(btn.dataset.user);
+        });
+
+        document.getElementById('modalClose').addEventListener('click', closeModal);
+        document.getElementById('modalOverlay').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
 
         setInterval(() => {
             const resetTime = getRealWorldResetTimer();
