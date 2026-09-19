@@ -83,6 +83,27 @@
             return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
 
+        // ===== แปลงตัวเลขเป็นตัวย่อ: 1k / 10k / 100k / 1m / 1.1b =====
+        function abbreviateNumber(num) {
+            num = Number(num) || 0;
+            const abs = Math.abs(num);
+            const sign = num < 0 ? '-' : '';
+            const units = [
+                { v: 1e12, s: 't' },
+                { v: 1e9,  s: 'b' },
+                { v: 1e6,  s: 'm' },
+                { v: 1e3,  s: 'k' }
+            ];
+            for (const u of units) {
+                if (abs >= u.v) {
+                    // ปัดทศนิยมสูงสุด 2 ตำแหน่ง แล้วตัด 0 ท้ายออก (1.50 → 1.5, 1.00 → 1)
+                    const n = (abs / u.v).toFixed(2).replace(/\.?0+$/, '');
+                    return sign + n + u.s;
+                }
+            }
+            return sign + String(abs);
+        }
+
         onValue(serversRef, (snapshot) => {
             currentData = snapshot.val() || {};
             renderCards();
@@ -113,7 +134,7 @@
                             <button class="eggs-btn" data-user="${username}">GrowingEggs</button>
                         </div>
                         <div class="stat highlight"><span>Rare Eggs:</span> <span>${data.eggCount} ฟอง</span></div>
-                        <div class="stat"><span>Speed:</span> <span>${data.speed ?? 0}</span></div>
+                        <div class="stat"><span>Speed:</span> <span>${abbreviateNumber(data.speed)}</span></div>
                         <div class="stat"><span>Players:</span> <span>${data.playerCount} คน</span></div>
                         <div class="stat"><span>Reset In:</span> <span class="reset-timer">${resetTime}</span></div>
                     `;
@@ -122,8 +143,56 @@
             }
         }
 
+        // ===== ระบบโหลดรูปไข่จาก Roblox Thumbnail API =====
+        const thumbCache = new Map();
+
+        async function getThumbUrl(assetId) {
+            if (!assetId) return null;
+            if (thumbCache.has(assetId)) return thumbCache.get(assetId);
+            try {
+                const res = await fetch(
+                    `https://thumbnails.roblox.com/v1/assets?assetIds=${encodeURIComponent(assetId)}&size=150x150&format=Png&isCircular=false`
+                );
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const json = await res.json();
+                const url = json?.data?.[0]?.imageUrl || null;
+                thumbCache.set(assetId, url);
+                return url;
+            } catch {
+                thumbCache.set(assetId, null);
+                return null;
+            }
+        }
+
+        function makeFallbackIcon() {
+            const fb = document.createElement('span');
+            fb.className = 'egg-icon egg-fallback';
+            fb.textContent = '🥚';
+            return fb;
+        }
+
+        // ใส่ icon ลงใน slot: แสดง 🥚 ก่อน แล้วค่อยเปลี่ยนเป็นรูปจริงเมื่อโหลดได้
+        function attachEggIcon(slot, rawIcon) {
+            const id = String(rawIcon ?? '').trim();
+            if (/^\d+$/.test(id)) {
+                getThumbUrl(id).then(url => {
+                    if (!url) return;
+                    const img = document.createElement('img');
+                    img.className = 'egg-icon';
+                    img.src = url;
+                    img.onerror = () => img.replaceWith(makeFallbackIcon());
+                    slot.replaceWith(img);
+                });
+            } else if (id) {
+                const img = document.createElement('img');
+                img.className = 'egg-icon';
+                img.src = id;
+                img.onerror = () => img.replaceWith(makeFallbackIcon());
+                slot.replaceWith(img);
+            }
+        }
+
         // ===== GrowingEggs Modal =====
-        // Firebase บางทีเก็บ array เป็น object ตัวเลข key — จัดรูปให้เป็น array ก่อน
         function normalizeEggs(eggs) {
             if (!eggs) return [];
             if (Array.isArray(eggs)) return eggs;
@@ -134,26 +203,10 @@
             const row = document.createElement('div');
             row.className = 'egg-row';
 
-            // รูปไข่ (ถ้าโหลดไม่ได้ สลับเป็น 🥚)
-            let iconEl;
-            if (egg.icon) {
-                iconEl = document.createElement('img');
-                iconEl.className = 'egg-icon';
-                iconEl.src = egg.icon;
-                iconEl.onerror = () => {
-                    const fb = document.createElement('span');
-                    fb.className = 'egg-icon egg-fallback';
-                    fb.textContent = '🥚';
-                    iconEl.replaceWith(fb);
-                };
-            } else {
-                iconEl = document.createElement('span');
-                iconEl.className = 'egg-icon egg-fallback';
-                iconEl.textContent = '🥚';
-            }
-            row.appendChild(iconEl);
+            const iconSlot = makeFallbackIcon();
+            attachEggIcon(iconSlot, egg.icon);
+            row.appendChild(iconSlot);
 
-            // แถบเวลา แบบภาพที่ 2 (Fill เขียว + ข้อความกลางแถบ)
             const bar = document.createElement('div');
             bar.className = 'egg-bar';
 
@@ -202,13 +255,11 @@
             document.getElementById('modalOverlay').classList.remove('active');
         }
 
-        // ปุ่ม GrowingEggs ข้างชื่อแต่ละคน
         document.getElementById('dataGrid').addEventListener('click', (e) => {
             const btn = e.target.closest('.eggs-btn');
             if (btn) openModal(btn.dataset.user);
         });
 
-        // ปิดหน้าต่าง: ปุ่ม ✕ / คลิกพื้นหลังนอกหน้าต่าง / กด Esc
         document.getElementById('modalClose').addEventListener('click', closeModal);
         document.getElementById('modalOverlay').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) closeModal();
